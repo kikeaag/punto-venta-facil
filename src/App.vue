@@ -1,21 +1,21 @@
 <template>
   <div id="app">
 
-    <nav-component></nav-component>
+    <nav-component @goToCash="goToCash" @goToCreateProduct="goToCreateProduct"></nav-component>
     
     <div id="nav">
       
-      <button @click="goToAbout()">About</button>
-      <button @click="goToCash()">CAJA</button>
+      <!-- <button @click="goToCreateProduct()">About</button>
+      <button @click="goToCash()">CAJA</button> -->
       
     </div>
 
-    <div v-if="showAboutComponent">
-      <about-component></about-component>
+    <div v-if="showCreateProductComponent">
+      <create-product-component />
     </div>
 
-    <div class="container" v-if="showCashComponent">
-      <cash-component></cash-component>
+    <div class="container" v-show="showCashComponent">
+      <cash-component ref="cashComponent"></cash-component>
     </div>
 
     
@@ -26,14 +26,13 @@
 
 <script>
 
-console.log(window)
 const electron = window.require("electron")
 //const { electron } = require('electron');
 
 // @ is an alias to /src
 import NavComponent from '@/views/NavComponent.vue'
-import AboutComponent from './views/AboutComponent.vue'
 import CashComponent from './views/CashComponent.vue'
+import CreateProductComponent from './views/Products/CreateProduct.vue'
 
 
 
@@ -41,11 +40,11 @@ export default {
   name: 'App',
   components: {
     NavComponent,
-    AboutComponent,
-    CashComponent
+    
+    CashComponent,
+    CreateProductComponent
   },
   mounted: function(){
-    console.log('listo')
     
     electron.ipcRenderer.on('goToHome', ()=>{
       this.$router.push('/');
@@ -56,25 +55,26 @@ export default {
     });
   },
   methods: {
-    goToAbout() {
+    goToCreateProduct() {
       console.log('abouttttt')
-      this.showAboutComponent = true
+      this.showCreateProductComponent = true
       this.showCashComponent = false
-      this.$router.push({name: 'AboutComponent'})
-      electron.ipcRenderer.on('goToAbout', ()=>{
+      /* this.$router.push({name: 'AboutComponent'}) */
+      /* electron.ipcRenderer.on('goToAbout', ()=>{
       //this.$router.push('/about');
-    });
+    }); */
     },
     goToCash() {
-      this.showAboutComponent = false
+      this.showCreateProductComponent = false
       this.showCashComponent = true
-      this.$router.push({name: 'AboutComponent'})
+      
+      /* this.$router.push({name: 'AboutComponent'}) */
       
     }
   },
   data: function () {
     return {
-      showAboutComponent: false,
+      showCreateProductComponent: false,
       showCashComponent: true,
 
     }

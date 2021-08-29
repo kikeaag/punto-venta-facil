@@ -2,7 +2,7 @@
     <div class="mt-3">
       <b-row>
         <div class="d-flex">
-          <b-form-input @keyup.enter="searchProduct" ref="inputBarcode" v-model="barcode" placeholder="Enter your name"></b-form-input>
+          <b-form-input @keyup.enter="searchProduct" ref="inputBarcode" v-model="barcode" placeholder="Ingrese el código de barras"></b-form-input>
           <b-button class="" style="margin-left: 20px;" variant="outline-primary">Buscar Producto</b-button>
         </div>
       </b-row>
@@ -41,8 +41,6 @@ export default {
     this.$refs.inputBarcode.focus()
 
     ipcRenderer.on('product', (e, products) => {
-      console.log('jalo el evento')
-      console.log(e)
       console.log(products)
       if (products) {
         this.insertNewProduct(products);

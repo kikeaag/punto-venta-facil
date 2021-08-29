@@ -2,13 +2,11 @@ const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 
 const url = require("url");
 const path = require("path");
-const { allProducts, createTableProducts, searchProductByBarcode } = require('./src/db');
-
-// Carga los productos, esto es de prueba
-
+const { allProducts, createTableProducts, searchProductByBarcode, createProduct } = require('./src/db');
 
 
 let mainWindow
+let createProductWindow
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -19,6 +17,8 @@ function createWindow() {
       contextIsolation: false
     }
   })
+
+  mainWindow.maximize()
 
   /* mainWindow.loadFile(path.join(__dirname, `./dist/index.html`)); */
 
@@ -36,14 +36,49 @@ function createWindow() {
   })
 }
 
+function createNewProductWindow() {
+  createProductWindow = new BrowserWindow({
+    width: 700,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true,
+      contextIsolation: false
+    }
+  })
+
+
+  /* mainWindow.loadFile(path.join(__dirname, `./dist/index.html`)); */
+
+  mainWindow.loadURL(
+    url.format({
+      pathname: path.join(__dirname, `./dist/index.html`),
+      protocol: "file:",
+      slashes: true
+    })
+  );
+
+
+  mainWindow.on('closed', function () {
+    mainWindow = null
+  })
+}
+
+// Regresa un producto, lo busca por codigo de barras
 ipcMain.on('search-product-by-barcode', (e, barcode) => {
   searchProductByBarcode(barcode).then((response) => {
-    console.log('respuesta', response)
+    
     mainWindow.webContents.send('product', response);
   });
 
   /* createTableProducts() */
   
+});
+
+// Crear un producto nuevo
+ipcMain.on('create-product', (e, newProduct) => {
+  createProduct(newProduct).then((response) => {
+    mainWindow.webContents.send('new-product-response', response);
+  });
 });
 
 //createMenu()
