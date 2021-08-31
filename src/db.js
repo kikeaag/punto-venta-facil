@@ -13,7 +13,7 @@ function openDB() {
 function createTableProducts(db) {
 
   db.serialize(function() {
-    db.run("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, barcode TEXT UNIQUE NULL, name TEXT NOT NULL, cost_price REAL NULL, list_price REAL NOT NULL)");
+    db.run("CREATE TABLE IF NOT EXISTS products (id INTEGER PRIMARY KEY AUTOINCREMENT, barcode TEXT UNIQUE NOT NULL, name TEXT NOT NULL, list_price REAL NOT NULL)");
   });
 
 }
@@ -70,15 +70,15 @@ function searchProductByBarcode(barcode) {
   let db = openDB();
 
   return new Promise((resolve, reject) => {
-    db.get(`select * from products where barcode = ?`, [barcode], (err, rows) => {
+    db.get(`select * from products where barcode = ?`, [ barcode.toUpperCase() ], (err, rows) => {
       if (err) {
         console.log(err)
-        closeConnection(db);
         reject(err);
+        closeConnection(db);
       }
       console.log(rows)
-      closeConnection(db);
       resolve(rows);
+      closeConnection(db);
     })
   });
 }
@@ -91,11 +91,32 @@ function createProduct(newProduct) {
   let db = openDB();
 
   return new Promise((resolve, reject) => {
-    db.run(`INSERT INTO products(name, barcode, cost_price, list_price) VALUES(?,?,?,?)`, Object.values(newProduct), (err, rows) => {
+    db.run(`INSERT INTO products(name, barcode, list_price) VALUES(?,?,?)`, Object.values(newProduct), (err, rows) => {
       if (err) {
         console.log(err)
-        closeConnection(db);
         reject(err);
+        closeConnection(db);
+      }
+      console.log(rows)
+      resolve(rows);
+      closeConnection(db);
+    })
+  });
+}
+
+// Edita un producto
+function editProduct(newProduct) {
+  let db = openDB();
+
+  return new Promise((resolve, reject) => {
+    db.run(`UPDATE products 
+            SET name = ?, barcode = ?, list_price = ? 
+            WHERE id = ?
+            `, Object.values(newProduct), (err, rows) => {
+      if (err) {
+        console.log(err)
+        reject(err);
+        closeConnection(db);
       }
       console.log(rows)
       resolve(rows);
@@ -110,5 +131,6 @@ module.exports = {
   allProducts,
   dropTableProducts,
   createProduct,
+  editProduct,
   searchProductByBarcode
 }

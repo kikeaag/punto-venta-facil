@@ -1,7 +1,7 @@
 <template>
   <div id="app">
 
-    <nav-component @goToCash="goToCash" @goToCreateProduct="goToCreateProduct"></nav-component>
+    <nav-component @goToView="goTo($event)" ></nav-component>
     
     <div id="nav">
       
@@ -10,16 +10,17 @@
       
     </div>
 
-    <div v-if="showCreateProductComponent">
+    <div v-if="viewToShow === 'create-product'">
       <create-product-component />
     </div>
 
-    <div class="container" v-show="showCashComponent">
-      <cash-component ref="cashComponent"></cash-component>
+    <div v-if="viewToShow === 'edit-product'">
+      <edit-product-component />
     </div>
 
-    
-
+    <div class="container" v-if="viewToShow === 'cash'">
+      <cash-component ref="cashComponent"></cash-component>
+    </div>
     
   </div>
 </template>
@@ -33,6 +34,7 @@ const electron = window.require("electron")
 import NavComponent from '@/views/NavComponent.vue'
 import CashComponent from './views/CashComponent.vue'
 import CreateProductComponent from './views/Products/CreateProduct.vue'
+import EditProductComponent from './views/Products/EditProductComponent.vue'
 
 
 
@@ -42,21 +44,21 @@ export default {
     NavComponent,
     
     CashComponent,
-    CreateProductComponent
+    CreateProductComponent,
+    EditProductComponent
   },
   mounted: function(){
+    
     
     electron.ipcRenderer.on('goToHome', ()=>{
       this.$router.push('/');
     });
     electron.ipcRenderer.on('goToAbout', ()=>{
-      console.log('abouttttt')
       this.$router.push('/about');
     });
   },
   methods: {
     goToCreateProduct() {
-      console.log('abouttttt')
       this.showCreateProductComponent = true
       this.showCashComponent = false
       /* this.$router.push({name: 'AboutComponent'}) */
@@ -64,10 +66,11 @@ export default {
       //this.$router.push('/about');
     }); */
     },
-    goToCash() {
-      this.showCreateProductComponent = false
-      this.showCashComponent = true
-      
+    goTo(view) {
+      console.log('de este lado', view)
+      /* this.showCreateProductComponent = false
+      this.showCashComponent = true */
+      this.viewToShow = view
       /* this.$router.push({name: 'AboutComponent'}) */
       
     }
@@ -76,6 +79,7 @@ export default {
     return {
       showCreateProductComponent: false,
       showCashComponent: true,
+      viewToShow: 'cash'
 
     }
   }

@@ -1,14 +1,15 @@
 <template>
     <div class="container mt-5">
         
-        <b-form>
+        <search-product-by-barcode-component ref="searchProductByBarcodeComponent" @product-selected="productSelected($event)" />
+
+        <b-form class="mt-4">
             <b-form-group
                 id="input-group-name"
                 label="Nombre:"
                 label-for="input-name"
             >
             <b-form-input
-            ref="inputName"
             id="input-name"
             v-model="name"
             type="text"
@@ -40,7 +41,7 @@
     </b-form>
 
     <div class="mt-5 d-flex justify-content-md-center justify-content-lg-center">
-        <b-button @click="createProduct()" variant="outline-primary">Guardar</b-button>
+        <b-button @keyup.enter="editProduct()" @click="editProduct()" variant="outline-primary">Guardar</b-button>
     </div>
     
     </div>
@@ -51,37 +52,53 @@
 
 const { ipcRenderer } = window.require("electron")
 
+import SearchProductByBarcodeComponent from '../../components/SearchProductByBarcodeComponent.vue'
 export default {
-    name: 'CreateProductComponent',
-    mounted: function () {
-        ipcRenderer.on('new-product-response', () => {
-            this.resetInputs()
-            this.$refs.inputName.focus()
-    })
-    },
+  components: { SearchProductByBarcodeComponent },
+    name: 'EditProductComponent',
     data () {
         return {
-            name: '',
             barcode: '',
-            list_price: null
+            name: '',
+            list_price: null,
+            id: null
         }
     },
+    mounted: function () {
+        ipcRenderer.on('edit-product-response', () => {
+            this.resetInputs()
+        })
+    },
     methods: {
-        createProduct() {
-            let newProduct = {
-                name: this.name.toUpperCase(),
-                barcode: this.barcode.toUpperCase(),
-                list_price: this.list_price
-            }
+        productSelected(product) {
+            this.barcode = product.barcode
+            this.name = product.name
+            this.list_price = product.list_price
+            this.id = product.id
+        },
+        editProduct() {
+            if (this.id) {
+                let newProduct = {
+                    name: this.name.toUpperCase(),
+                    barcode: this.barcode.toUpperCase(),
+                    list_price: this.list_price,
+                    id: this.id
+                }
+    
+                ipcRenderer.send('edit-product', newProduct);
 
-            ipcRenderer.send('create-product', newProduct);
+            }
         },
         resetInputs() {
+            this.id = null
             this.name = ''
             this.barcode = ''
             this.list_price = null
+            
         }
     }
 
+
 }
 </script>
+

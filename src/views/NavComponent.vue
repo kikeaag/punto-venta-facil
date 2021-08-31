@@ -8,15 +8,15 @@
 
         <b-collapse id="nav-collapse" is-nav>
           <b-navbar-nav>
-            <b-nav-item @click="goToCash()" href="#">Caja</b-nav-item>
+            <b-nav-item @click="goToView('cash')" href="#">Caja</b-nav-item>
 
             <b-nav-item-dropdown right>
               <!-- Using 'button-content' slot -->
               <template #button-content>
                 Products
               </template>
-              <b-dropdown-item @click="goToCreateProduct()" href="#">Crear Producto</b-dropdown-item>
-              <b-dropdown-item href="#">Actualizar Producto</b-dropdown-item>
+              <b-dropdown-item @click="goToView('create-product')" href="#">Crear Producto</b-dropdown-item>
+              <b-dropdown-item @click="goToView('edit-product')" href="#">Editar Producto</b-dropdown-item>
               <b-dropdown-item href="#">Eliminar Producto</b-dropdown-item>
             </b-nav-item-dropdown>
           </b-navbar-nav>
@@ -36,6 +36,10 @@ export default {
     //
   },
   methods: {
+    goToView(view) {
+      console.log('se selecciono', view)
+      this.$emit('goToView', view);
+    },
     goToCash() {
       /* this.$router.push({ name: 'cash'}) */
       this.$emit('goToCash')

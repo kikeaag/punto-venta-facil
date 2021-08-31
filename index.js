@@ -2,7 +2,13 @@ const { app, BrowserWindow, Menu, ipcMain } = require('electron');
 
 const url = require("url");
 const path = require("path");
-const { allProducts, createTableProducts, searchProductByBarcode, createProduct } = require('./src/db');
+const { 
+        allProducts, 
+        createTableProducts, 
+        searchProductByBarcode, 
+        createProduct,
+        editProduct
+      } = require('./src/db');
 
 
 let mainWindow
@@ -78,6 +84,13 @@ ipcMain.on('search-product-by-barcode', (e, barcode) => {
 ipcMain.on('create-product', (e, newProduct) => {
   createProduct(newProduct).then((response) => {
     mainWindow.webContents.send('new-product-response', response);
+  });
+});
+
+// Edita un producto
+ipcMain.on('edit-product', (e, newProduct) => {
+  editProduct(newProduct).then((response) => {
+    mainWindow.webContents.send('edit-product-response', response);
   });
 });
 
