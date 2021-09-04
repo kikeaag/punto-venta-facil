@@ -26,7 +26,7 @@
       <configuration-component />
     </div>
 
-    <div class="container" v-if="viewToShow === 'cash'">
+    <div class="fluid m-4" v-if="viewToShow === 'cash'">
       <cash-component ref="cashComponent"></cash-component>
     </div>
     

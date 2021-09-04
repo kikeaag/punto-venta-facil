@@ -9,11 +9,12 @@
       </b-row>
       <b-row>
         <div class="mt-3">
-          <b-table primary-key="index" sticky-header="450px" striped hover :fields="fields"  :items="products" bordered	>
+          <b-table id="main-table" primary-key="index" sticky-header="450px" striped hover :fields="fields"  :items="products" bordered	>
 
             <!-- A custom formatted column -->
             <template #cell(list_price)="data">
               $ {{ data.item.list_price | formatDecimal }}
+              {{ index }}
             </template>
 
             <!-- A custom formatted column -->
@@ -156,7 +157,7 @@ export default {
         this.sumProductsTotal()
         this.sumTotalOfProducts()
         this.$nextTick(() => {
-          let row = document.getElementById('__BVID__22__row_' + (this.products.length));
+          let row = document.getElementById('main-table__row_' + (this.products.length));
           row.scrollIntoView(true);
 
         })
