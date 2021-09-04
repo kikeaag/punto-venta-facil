@@ -10,6 +10,7 @@
                 label-for="input-name"
             >
             <b-form-input
+            disabled
             id="input-name"
             v-model="name"
             type="text"
@@ -18,6 +19,7 @@
 
         <b-form-group class="mt-4" id="input-group-barcode" label="Código de barras:" label-for="input-barcode">
             <b-form-input
+            disabled
             id="input-barcode"
             v-model="barcode"
             ></b-form-input>
@@ -33,6 +35,7 @@
 
         <b-form-group class="mt-4" id="input-group-list-price" label="Precio de venta:" label-for="input-list-price">
             <b-form-input
+            disabled
             type="number"
             id="input-list-price"
             v-model="list_price"
@@ -41,7 +44,7 @@
     </b-form>
 
     <div class="mt-5 d-flex justify-content-md-center justify-content-lg-center">
-        <b-button @keyup.enter="editProduct()" @click="editProduct()" variant="outline-primary">Guardar</b-button>
+        <b-button @keyup.enter="deleteProduct()" @click="deleteProduct()" variant="outline-danger">Eliminar</b-button>
     </div>
     
     </div>
@@ -55,7 +58,7 @@ const { ipcRenderer } = window.require("electron")
 import SearchProductByBarcodeComponent from '../../components/SearchProductByBarcodeComponent.vue'
 export default {
   components: { SearchProductByBarcodeComponent },
-    name: 'EditProductComponent',
+    name: 'DeleteProductComponent',
     data () {
         return {
             barcode: '',
@@ -66,7 +69,7 @@ export default {
     },
     mounted () {
         
-        ipcRenderer.on('edit-product-response', () => {
+        ipcRenderer.on('delete-product-response', () => {
             this.resetInputs()
         })
     },
@@ -77,16 +80,10 @@ export default {
             this.list_price = product.list_price
             this.id = product.id
         },
-        editProduct() {
+        deleteProduct() {
             if (this.id) {
-                let newProduct = {
-                    name: this.name.toUpperCase(),
-                    barcode: this.barcode.toUpperCase(),
-                    list_price: this.list_price,
-                    id: this.id
-                }
     
-                ipcRenderer.send('edit-product', newProduct);
+                ipcRenderer.send('delete-product', this.id);
 
             }
         },

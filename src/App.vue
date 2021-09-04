@@ -18,6 +18,14 @@
       <edit-product-component />
     </div>
 
+    <div v-if="viewToShow === 'delete-product'">
+      <delete-product-component />
+    </div>
+
+    <div v-if="viewToShow === 'configuration'">
+      <configuration-component />
+    </div>
+
     <div class="container" v-if="viewToShow === 'cash'">
       <cash-component ref="cashComponent"></cash-component>
     </div>
@@ -35,6 +43,8 @@ import NavComponent from '@/views/NavComponent.vue'
 import CashComponent from './views/CashComponent.vue'
 import CreateProductComponent from './views/Products/CreateProduct.vue'
 import EditProductComponent from './views/Products/EditProductComponent.vue'
+import DeleteProductComponent from './views/Products/DeleteProductComponent.vue'
+import ConfigurationComponent from './views/ConfigurationComponent.vue'
 
 
 
@@ -45,7 +55,9 @@ export default {
     
     CashComponent,
     CreateProductComponent,
-    EditProductComponent
+    EditProductComponent,
+    DeleteProductComponent,
+    ConfigurationComponent
   },
   mounted: function(){
     

@@ -7,7 +7,9 @@ const {
         createTableProducts, 
         searchProductByBarcode, 
         createProduct,
-        editProduct
+        editProduct,
+        deleteProduct,
+        importProducts
       } = require('./src/db');
 
 
@@ -91,6 +93,21 @@ ipcMain.on('create-product', (e, newProduct) => {
 ipcMain.on('edit-product', (e, newProduct) => {
   editProduct(newProduct).then((response) => {
     mainWindow.webContents.send('edit-product-response', response);
+  });
+});
+
+// Elimina un producto
+ipcMain.on('delete-product', (e, id) => {
+  deleteProduct(id).then((response) => {
+    mainWindow.webContents.send('delete-product-response', response);
+  });
+});
+
+// Importa productos a la base de datos, recibe un json
+ipcMain.on('configuration-import-products', (e, products) => {
+
+  importProducts(products).then((response) => {
+    mainWindow.webContents.send('configuration-import-products-response', response);
   });
 });
 

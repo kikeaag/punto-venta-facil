@@ -1,62 +1,280 @@
 <template>
     <div class="mt-3">
       <b-row>
-        <div class="d-flex">
-          <b-form-input @keyup.enter="searchProduct" ref="inputBarcode" v-model="barcode" placeholder="Ingrese el código de barras"></b-form-input>
-          <b-button class="" style="margin-left: 20px;" variant="outline-primary">Buscar Producto</b-button>
-        </div>
+        <search-product-by-barcode-component 
+          ref="searchProductByBarcodeComponentRef"
+          @remove-last-item="removeLastItemFromTable" 
+          @product-selected="insertNewProduct($event)"
+          @enter-input-empty="nextToPayWith" />
       </b-row>
       <b-row>
-        <div class="mt-5">
-          <b-table striped hover :items="products"></b-table>
+        <div class="mt-3">
+          <b-table primary-key="index" sticky-header="450px" striped hover :fields="fields"  :items="products" bordered	>
+
+            <!-- A custom formatted column -->
+            <template #cell(list_price)="data">
+              $ {{ data.item.list_price | formatDecimal }}
+            </template>
+
+            <!-- A custom formatted column -->
+            <template #cell(subtotal)="data">
+              $ {{ data.item.subtotal | formatDecimal }}
+            </template>
+              
+          </b-table>
         </div>
+      </b-row>
+
+      <b-row>
+        <b-col>
+          <div style="display: flex; align-items: center;">
+            <div>
+              <label>TOTAL DE PRODUCTOS: </label> 
+
+            </div>
+            <div>
+              <span style="font-size: 30px; margin-left: 10px;">{{ totalOfProducts | formatDecimal }} </span>
+            </div>
+          </div>
+        </b-col>
+        <b-col></b-col>
+        <b-col>
+          <b-table-simple style="font-size: 30px;">
+            <b-tr>
+              <b-td>TOTAL:</b-td>
+              <b-td style="display: flex; justify-content: flex-end; margin-right: 20px;">{{ total | formatMxn }}</b-td>
+            </b-tr>
+          </b-table-simple>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col></b-col>
+        <b-col></b-col>
+        <b-col>
+          <b-table-simple style="font-size: 30px;">
+            <b-tr>
+              <b-td>PAGA CON:</b-td>
+              <b-td>
+                <b-input 
+                  ref="inputPayWith"
+                  type="number"
+                  v-model="payWith" 
+                  autocomplete="false"
+                  :state="this.yourChange !== null && this.payWith && this.products.length > 0 ? true : null"
+                  @keyup="pressInputHandler($event)"
+                  />
+              </b-td>
+            </b-tr>
+          </b-table-simple>
+        </b-col>
+      </b-row>
+      <b-row>
+        <b-col></b-col>
+        <b-col></b-col>
+        <b-col>
+          <b-table-simple v-show="yourChange !== null" style="font-size: 30px;">
+            <b-tr>
+              <b-td style="color: red;">SU CAMBIO:</b-td>
+              <b-td style="color: red; display: flex; justify-content: flex-end; margin-right: 20px;">{{ yourChange | formatMxn }}</b-td>
+            </b-tr>
+          </b-table-simple>
+        </b-col>
       </b-row>
     </div>
 
 </template>
 
 <script>
+import SearchProductByBarcodeComponent from '../components/SearchProductByBarcodeComponent.vue'
 
 /* const { ipcRenderer } = require('electron'); */
-const { ipcRenderer } = window.require("electron")
+/* const { ipcRenderer } = window.require("electron") */
 
 
 
 export default {
+  components: { SearchProductByBarcodeComponent },
   name: 'CashComponent',
   data: function () {
     return {
-      barcode: '',
-      products: [
+      fields: [
         {
-          id: 1,
-          name: '1 KG TORTILLA ROSY',
-          listPrice: '20.00'
+          key: 'index',
+          label: '#',
+          tdClass: 'index-class'
+        },
+        {
+          key: 'name',
+          label: 'NOMBRE',
+          tdClass: 'name-class'
+        },
+        {
+          key: 'quantity',
+          label: 'CANTIDAD',
+          tdClass: 'quantity-class'
+        },
+        {
+          key: 'list_price',
+          label: 'PRECIO',
+          tdClass: 'list-price-class'
+        },
+        {
+          key: 'subtotal',
+          label: 'IMPORTE',
+          tdClass: 'subtotal-class'
         }
-      ]
+      ],
+      barcode: '',
+      products: [],
+      total: 0,
+      totalOfProducts: 0,
+      payWith: null,
+      yourChange: null
 
     }
   },
   mounted: function () {
-    this.$refs.inputBarcode.focus()
 
-    ipcRenderer.on('product', (e, products) => {
+    /* ipcRenderer.on('product', (e, products) => {
       console.log(products)
       if (products) {
         this.insertNewProduct(products);
 
       }
-    })
+    }) */
+    this.$nextTick(() => {
+        this.$refs.searchProductByBarcodeComponentRef.$refs.inputBarcode.focus();
+
+      })
   },
   methods: {
-    searchProduct: function () {
-
-      console.log('buscando producto')
-      ipcRenderer.send('search-product-by-barcode', this.barcode);
-    },
     insertNewProduct(newProduct) {
-      this.products.push(newProduct)
+      if (newProduct) {
+        newProduct.subtotal = newProduct.quantity * newProduct.list_price
+        newProduct.index = this.products.length + 1;
+        this.products.push(newProduct)
+        this.sumProductsTotal()
+        this.sumTotalOfProducts()
+        this.$nextTick(() => {
+          let row = document.getElementById('__BVID__22__row_' + (this.products.length));
+          row.scrollIntoView(true);
+
+        })
+      }
+    },
+    removeLastItemFromTable() {
+      this.products.splice(-1)
+      this.sumProductsTotal()
+      this.sumTotalOfProducts()
+    },
+    sumProductsTotal() {
+      this.total = this.products.reduce(function(a, b){
+        return a + b.subtotal;
+      }, 0);
+    },
+    sumTotalOfProducts() {
+      this.totalOfProducts = this.products.reduce(function(a, b){
+        return a + b.quantity;
+      }, 0);
+    },
+    nextToPayWith() {
+      if (this.products.length > 0) {
+        this.$refs.inputPayWith.focus();
+      }
+    },
+    returnToSearchProductByBarcodeInput() {
+      this.$nextTick(() => {
+        this.$refs.searchProductByBarcodeComponentRef.$refs.inputBarcode.focus();
+        this.payWith = null
+        this.yourChange = null
+      })
+    },
+    calculateChange() {
+      console.log('change', this.yourChange)
+      console.log('pago con', this.payWith)
+      if (this.yourChange !== null && this.payWith && this.products.length > 0) {
+        console.log('venta registrada')
+        this.soldOut()
+      }
+      if (this.payWith > 0) {
+        this.yourChange =  this.payWith - this.total
+      }
+    },
+    soldOut() {
+      this.resetControls()
+
+    },
+    resetControls() {
+      this.yourChange = null
+      this.payWith = null
+      this.total = 0
+      this.totalOfProducts = 0
+      this.products = []
+      this.barcode = ''
+      this.$refs.searchProductByBarcodeComponentRef.$refs.inputBarcode.focus();
+    },
+    deletePayWith() {
+      this.yourChange = null
+    },
+    pressInputHandler(value) {
+      if (value.key === 'Enter') {
+        this.calculateChange()
+        return
+      }
+
+      if (value.key === 'Backspace') {
+        this.deletePayWith()
+        return
+      }
+
+      if (value.key === 'Escape') {
+        this.returnToSearchProductByBarcodeInput()
+        return
+      }
+      if (this.yourChange) {
+        this.deletePayWith()
+      }
+      //this.calculateChange()
+      console.log('es numero o texto', value)
     }
+  },
+  filters: {
+  formatMxn: function (value) {
+    const options2 = { style: 'currency', currency: 'MXN' };
+    const numberFormat2 = new Intl.NumberFormat('en-US', options2);
+    return numberFormat2.format(value);
+  },
+  formatDecimal: function (value) {
+    /* const options2 = { style: 'currency', currency: 'MXN' }; */
+    const numberFormat2 = new Intl.NumberFormat('en-US');
+    return numberFormat2.format(value);
+  },
+  formatWithTwoDecimal: function (value) {
+    return value.toFixed(2);
   }
 }
+}
 </script>
+
+<style>
+.index-class {
+  width: 1px !important;
+  font-size: 20px;
+}
+.name-class {
+  width: 70%;
+  font-size: 20px;
+}
+.quantity-class {
+  width: 10%;
+  font-size: 20px;
+}
+.list-price-class {
+  width: 10%;
+  font-size: 20px;
+}
+.subtotal-class {
+  width: 10%;
+  font-size: 20px;
+}
+</style>

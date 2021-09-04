@@ -125,6 +125,55 @@ function editProduct(newProduct) {
   });
 }
 
+// Elimina un producto
+function deleteProduct(id) {
+  let db = openDB();
+
+  return new Promise((resolve, reject) => {
+    db.run(`DELETE FROM products 
+            WHERE id = ?
+            `, [id], (err, rows) => {
+      if (err) {
+        console.log(err)
+        reject(err);
+        closeConnection(db);
+      }
+      console.log(rows)
+      resolve(rows);
+      closeConnection(db);
+    })
+  });
+}
+
+// Inserta productos masivamente
+function importProducts(newProducts) {
+  
+
+  return new Promise((resolve, reject) => {
+    let db = openDB();
+    newProducts.map((product) => {
+      if (product.name === null || product.name === '') return
+      if (product.barcode === null || product.barcode === '') return
+      if (product.list_price === null || product.list_price === '') return
+      newProduct = {
+        name: product.name,
+        barcode: product.barcode,
+        list_price: product.list_price
+      }
+      db.run(`INSERT INTO products(name, barcode, list_price) VALUES(?,?,?)`, Object.values(newProduct), (err, rows) => {
+        if (err) {
+          console.log(err)
+          reject(err);
+          closeConnection(db);
+        }
+        console.log(rows)
+        resolve(rows);
+        closeConnection(db);
+      });
+    })
+  });
+}
+
 
 module.exports = {
   createTableProducts,
@@ -132,5 +181,7 @@ module.exports = {
   dropTableProducts,
   createProduct,
   editProduct,
-  searchProductByBarcode
+  deleteProduct,
+  searchProductByBarcode,
+  importProducts
 }
