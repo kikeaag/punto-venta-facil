@@ -232,11 +232,12 @@ export default {
         this.returnToSearchProductByBarcodeInput()
         return
       }
-      if (this.yourChange) {
+      if (this.yourChange || this.yourChange === 0) {
         this.deletePayWith()
       }
       //this.calculateChange()
       console.log('es numero o texto', value)
+      console.log('your change', this.yourChange)
     }
   },
   filters: {
