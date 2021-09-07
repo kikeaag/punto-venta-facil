@@ -100,7 +100,14 @@ ipcMain.on('configuration-import-products', (e, products) => {
 ipcMain.on('configuration-export-all-products', (e) => {
 
   allProducts().then((response) => {
-    const jsonString = JSON.stringify(response);
+    formatJson = [
+      {},
+      {},
+      {
+        data: response
+      }
+    ];
+    const jsonString = JSON.stringify(formatJson);
     let today = new Date();
     let nameOfBackup = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
     fs.writeFileSync(__dirname + '/src/assets/backup/' + nameOfBackup + '.json', jsonString, err => {
