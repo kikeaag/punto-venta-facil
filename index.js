@@ -9,12 +9,13 @@ const {
         createProduct,
         editProduct,
         deleteProduct,
-        importProducts
+        importProducts,
+        searchProductByName
       } = require('./src/db');
 
+const fs = require ('fs')
 
 let mainWindow
-let createProductWindow
 
 function createWindow() {
   mainWindow = new BrowserWindow({
@@ -44,38 +45,22 @@ function createWindow() {
   })
 }
 
-function createNewProductWindow() {
-  createProductWindow = new BrowserWindow({
-    width: 700,
-    height: 600,
-    webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false
-    }
-  })
-
-
-  /* mainWindow.loadFile(path.join(__dirname, `./dist/index.html`)); */
-
-  mainWindow.loadURL(
-    url.format({
-      pathname: path.join(__dirname, `./dist/index.html`),
-      protocol: "file:",
-      slashes: true
-    })
-  );
-
-
-  mainWindow.on('closed', function () {
-    mainWindow = null
-  })
-}
-
 // Regresa un producto, lo busca por codigo de barras
 ipcMain.on('search-product-by-barcode', (e, barcode) => {
   searchProductByBarcode(barcode).then((response) => {
     
     mainWindow.webContents.send('product', response);
+  });
+
+  /* createTableProducts() */
+  
+});
+
+// Regresa muchos productos, lo busca por nombre
+ipcMain.on('search-product-by-name', (e, productName) => {
+  searchProductByName(productName).then((response) => {
+    
+    mainWindow.webContents.send('search-product-by-name-response', response);
   });
 
   /* createTableProducts() */
@@ -108,6 +93,24 @@ ipcMain.on('configuration-import-products', (e, products) => {
 
   importProducts(products).then((response) => {
     mainWindow.webContents.send('configuration-import-products-response', response);
+  });
+});
+
+// Exporta todos los productos de la bd, regresa un json
+ipcMain.on('configuration-export-all-products', (e) => {
+
+  allProducts().then((response) => {
+    const jsonString = JSON.stringify(response);
+    let today = new Date();
+    let nameOfBackup = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+    fs.writeFileSync(__dirname + '/src/assets/backup/' + nameOfBackup + '.json', jsonString, err => {
+      if (err) { 
+        console.log ('Error al escribir el archivo', err) 
+    } else { 
+        console.log ('El archivo se escribió correctamente') 
+    } 
+    })
+    mainWindow.webContents.send('configuration-export-all-products-response', response);
   });
 });
 

@@ -1,20 +1,27 @@
 <template>
     <div class="mt-3">
       <b-row>
-        <search-product-by-barcode-component 
-          ref="searchProductByBarcodeComponentRef"
-          @remove-last-item="removeLastItemFromTable" 
-          @product-selected="insertNewProduct($event)"
-          @enter-input-empty="nextToPayWith" />
+        <b-col>
+          <search-product-by-barcode-component 
+            ref="searchProductByBarcodeComponentRef"
+            @remove-last-item="removeLastItemFromTable" 
+            @product-selected="insertNewProduct($event)"
+            @enter-input-empty="nextToPayWith" />
+        </b-col>
+        <b-col cols="2" style="display: flex; justify-content: center; align-items: flex-end;">
+          <b-button @click="showModalToSearchProductByName" variant="outline-primary">Buscar Producto <b-icon-search/></b-button>
+
+        </b-col>
       </b-row>
       <b-row>
+      
+  
         <div class="mt-3">
           <b-table id="main-table" primary-key="index" sticky-header="450px" striped hover :fields="fields"  :items="products" bordered	>
 
             <!-- A custom formatted column -->
             <template #cell(list_price)="data">
               $ {{ data.item.list_price | formatDecimal }}
-              {{ index }}
             </template>
 
             <!-- A custom formatted column -->
@@ -81,12 +88,14 @@
           </b-table-simple>
         </b-col>
       </b-row>
+      <search-product-by-name-modal-component ref="modalToSearchProductByName" @addProductToSale="insertNewProduct($event)"/>
     </div>
 
 </template>
 
 <script>
 import SearchProductByBarcodeComponent from '../components/SearchProductByBarcodeComponent.vue'
+import SearchProductByNameModalComponent from '../components/SearchProductByNameModalComponent.vue'
 
 /* const { ipcRenderer } = require('electron'); */
 /* const { ipcRenderer } = window.require("electron") */
@@ -94,7 +103,7 @@ import SearchProductByBarcodeComponent from '../components/SearchProductByBarcod
 
 
 export default {
-  components: { SearchProductByBarcodeComponent },
+  components: { SearchProductByBarcodeComponent, SearchProductByNameModalComponent },
   name: 'CashComponent',
   data: function () {
     return {
@@ -144,9 +153,10 @@ export default {
       }
     }) */
     this.$nextTick(() => {
-        this.$refs.searchProductByBarcodeComponentRef.$refs.inputBarcode.focus();
+      this.$refs.searchProductByBarcodeComponentRef.$refs['inputBarcode'].focus();
 
-      })
+    })
+    
   },
   methods: {
     insertNewProduct(newProduct) {
@@ -238,6 +248,9 @@ export default {
       //this.calculateChange()
       console.log('es numero o texto', value)
       console.log('your change', this.yourChange)
+    },
+    showModalToSearchProductByName() {
+      this.$refs.modalToSearchProductByName.showModal = true
     }
   },
   filters: {

@@ -26,33 +26,23 @@ function dropTableProducts() {
   closeConnection(db);
 }
 
+// Regresa todos los productos
 function allProducts() {
   let db = openDB();
 
-  let result = new Promise((resolve, reject) => {
-    db.all('select * from products', [], (err, rows) => {
+  return new Promise((resolve, reject) => {
+    db.all('select * from products order by id asc', [], (err, rows) => {
       if (err) {
+        console.log(err)
         reject(err);
+        closeConnection(db);
       }
 
+      console.log(rows)
       resolve(rows);
+      closeConnection(db);
     })
   });
-
-  closeConnection(db);
-
-  return result;
-  /* return db.all('select * from products', [], (err, rows) => {
-    if (err) {
-      throw err;
-    }
-    rows.forEach((row) => {
-      
-    });
-
-    return rows;
-    
-  }); */
 }
 
 /* function createProduct() {
@@ -65,6 +55,25 @@ function allProducts() {
     console.log(`A row has been inserted with rowid ${this.lastID}`);
   });
 } */
+
+// Busca un producto por nombre
+function searchProductByName(productName) {
+  let db = openDB();
+
+  return new Promise((resolve, reject) => {
+    db.all(`select * from products where name like ? order by name asc`, [ '%' + productName.toUpperCase() + '%' ], (err, rows) => {
+      if (err) {
+        console.log(err)
+        reject(err);
+        closeConnection(db);
+      }
+      console.log(rows)
+      resolve(rows);
+      closeConnection(db);
+    })
+  });
+}
+
 
 function searchProductByBarcode(barcode) {
   let db = openDB();
@@ -183,5 +192,6 @@ module.exports = {
   editProduct,
   deleteProduct,
   searchProductByBarcode,
+  searchProductByName,
   importProducts
 }

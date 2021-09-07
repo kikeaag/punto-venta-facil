@@ -19,8 +19,11 @@
                 <b-col></b-col>
 
             </b-row>
+            <b-row class="mt-5">
+                <b-col>
+                    <b-button @click="exportProducts" variant="outline-primary">Backup Productos <b-icon-cloud-arrow-down v-show="exportSuccess" /></b-button>
 
-            <b-row>
+                </b-col>
                 
             </b-row>
 
@@ -38,14 +41,19 @@ export default {
     name: 'ConfigurationComponent',
     mounted: function() {
         
-        ipcRenderer.on('configuration-import-products-response', (e, response) => {
-            console.log('ok', response)
+        ipcRenderer.on('configuration-import-products-response', () => {
+            
+        })
+
+        ipcRenderer.on('configuration-export-all-products-response', () => {
+            this.exportSuccess = true
         })
     },
     data() {
         return {
             showImportInput: false,
-            jsonProducts: null
+            jsonProducts: null,
+            exportSuccess: false
         }
     },
     methods: {
@@ -66,6 +74,9 @@ export default {
             request.onload = function() {
                 ipcRenderer.send('configuration-import-products', request.response[2].data)
             }
+        },
+        exportProducts() {
+            ipcRenderer.send('configuration-export-all-products')
         }
     }
 
