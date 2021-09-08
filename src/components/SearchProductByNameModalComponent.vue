@@ -1,6 +1,6 @@
 <template>
     <div>
-        <b-modal scrollable return-focus="#input-barcode" v-model="showModal" id="modal-xl" size="xl" title="Busqueda de producto por nombre">
+        <b-modal hide-footer scrollable return-focus="#input-barcode" v-model="showModal" id="modal-xl" size="xl" title="Busqueda de producto por nombre">
             <div class="container">
                 <b-row>
                     <b-form-group
@@ -16,7 +16,7 @@
 
                         <!-- A custom formatted column -->
                         <template #cell(quantity)="data">
-                            <b-form-input v-model="inputQuantity[data.index]" type="number" trim></b-form-input>
+                            <b-form-input min="0" v-model="inputQuantity[data.index]" type="number" trim></b-form-input>
                         </template>
                         <!-- A custom formatted column -->
                         <template #cell(actions)="data">
@@ -80,9 +80,13 @@ export default {
         },
         addProduct(index) {
 
-            this.products[index].quantity = this.inputQuantity[index] === undefined ? 1 : parseFloat(this.inputQuantity[index]);
-            
-            this.$emit('addProductToSale', this.products[index]);
+            if (this.inputQuantity[index] && this.inputQuantity[index] >= 0) {
+                this.products[index].quantity = this.inputQuantity[index] === undefined ? 1 : parseFloat(this.inputQuantity[index]);
+                
+                this.$emit('addProductToSale', this.products[index]);
+
+            }
+
             this.toHideModal();
             this.resetControls()
             
@@ -94,7 +98,7 @@ export default {
             this.showModal = false
         },
         resetControls() {
-            this.inputQuantity = 1;
+            this.inputQuantity = [];
             this.productName = '';
             this.products = [];
         }

@@ -20,6 +20,20 @@
           <b-table id="main-table" primary-key="index" sticky-header="450px" striped hover :fields="fields"  :items="products" bordered	>
 
             <!-- A custom formatted column -->
+            <template #cell(quantity)="data">
+              <div @click="showModalQuantity(data.index)">
+              {{ data.item.quantity }}
+              </div>
+            </template>
+
+            <!-- A custom formatted column -->
+            <template #cell(name)="data">
+              <div>
+                <span>{{ data.item.name }} </span> <b-badge style="background: red;" v-show="data.item.quantity <= 0" variant="danger">CANCELADO</b-badge>
+              </div>
+            </template>
+
+            <!-- A custom formatted column -->
             <template #cell(list_price)="data">
               $ {{ data.item.list_price | formatDecimal }}
             </template>
@@ -89,11 +103,14 @@
         </b-col>
       </b-row>
       <search-product-by-name-modal-component ref="modalToSearchProductByName" @addProductToSale="insertNewProduct($event)"/>
+
+      <change-quantity-modal-component @saveNewQuantity="changeNewQuantity($event)" ref="modalToChangeQuantityProductRef" />
     </div>
 
 </template>
 
 <script>
+import ChangeQuantityModalComponent from '../components/ChangeQuantityModalComponent.vue'
 import SearchProductByBarcodeComponent from '../components/SearchProductByBarcodeComponent.vue'
 import SearchProductByNameModalComponent from '../components/SearchProductByNameModalComponent.vue'
 
@@ -103,7 +120,7 @@ import SearchProductByNameModalComponent from '../components/SearchProductByName
 
 
 export default {
-  components: { SearchProductByBarcodeComponent, SearchProductByNameModalComponent },
+  components: { SearchProductByBarcodeComponent, SearchProductByNameModalComponent, ChangeQuantityModalComponent },
   name: 'CashComponent',
   data: function () {
     return {
@@ -160,7 +177,7 @@ export default {
   },
   methods: {
     insertNewProduct(newProduct) {
-      if (newProduct) {
+      if (newProduct && newProduct.quantity >= 0) {
         newProduct.subtotal = newProduct.quantity * newProduct.list_price
         newProduct.index = this.products.length + 1;
         this.products.push(newProduct)
@@ -251,6 +268,19 @@ export default {
     },
     showModalToSearchProductByName() {
       this.$refs.modalToSearchProductByName.showModal = true
+    },
+    showModalQuantity(index) {
+      console.log(index)
+      this.$refs.modalToChangeQuantityProductRef.showModal = true
+      this.$refs.modalToChangeQuantityProductRef.productIndex = index
+      this.$refs.modalToChangeQuantityProductRef.quantity = this.products[index].quantity
+      
+    },
+    changeNewQuantity(data) {
+      this.products[data.index].quantity = parseFloat(data.quantity)
+      this.products[data.index].subtotal = data.quantity * this.products[data.index].list_price
+      this.sumProductsTotal()
+      this.sumTotalOfProducts()
     }
   },
   filters: {
@@ -291,5 +321,9 @@ export default {
 .subtotal-class {
   width: 10%;
   font-size: 20px;
+}
+
+.bandge-danger {
+    background: red !important;
 }
 </style>
