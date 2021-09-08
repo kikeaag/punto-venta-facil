@@ -80,6 +80,7 @@ export default {
         },
         addProduct(index) {
 
+            if (this.inputQuantity[index] === undefined) this.inputQuantity[index] = 1;
             if (this.inputQuantity[index] && this.inputQuantity[index] >= 0) {
                 this.products[index].quantity = this.inputQuantity[index] === undefined ? 1 : parseFloat(this.inputQuantity[index]);
                 

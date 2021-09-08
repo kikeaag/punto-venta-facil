@@ -17,7 +17,7 @@
       
   
         <div class="mt-3">
-          <b-table id="main-table" primary-key="index" sticky-header="450px" striped hover :fields="fields"  :items="products" bordered	>
+          <b-table id="main-table" ref="mainTableRef" primary-key="index" sticky-header="450px" striped hover :fields="fields"  :items="products" bordered	>
 
             <!-- A custom formatted column -->
             <template #cell(quantity)="data">
@@ -199,14 +199,16 @@ export default {
       this.total = this.products.reduce(function(a, b){
         return a + b.subtotal;
       }, 0);
+      this.$refs.mainTableRef.refresh();
     },
     sumTotalOfProducts() {
       this.totalOfProducts = this.products.reduce(function(a, b){
         return a + b.quantity;
       }, 0);
+      this.$refs.mainTableRef.refresh();
     },
     nextToPayWith() {
-      if (this.products.length > 0) {
+      if (this.products.length > 0 && this.total > 0) {
         this.$refs.inputPayWith.focus();
       }
     },
@@ -220,7 +222,7 @@ export default {
     calculateChange() {
       console.log('change', this.yourChange)
       console.log('pago con', this.payWith)
-      if (this.yourChange !== null && this.payWith && this.products.length > 0) {
+      if (this.yourChange !== null && this.payWith && this.products.length > 0 && this.total > 0) {
         console.log('venta registrada')
         this.soldOut()
       }
@@ -277,10 +279,15 @@ export default {
       
     },
     changeNewQuantity(data) {
+      console.log('data', data)
       this.products[data.index].quantity = parseFloat(data.quantity)
+      console.log(this.products[data.index].quantity)
       this.products[data.index].subtotal = data.quantity * this.products[data.index].list_price
-      this.sumProductsTotal()
-      this.sumTotalOfProducts()
+        this.sumProductsTotal()
+        this.sumTotalOfProducts()
+      this.$nextTick(() => {
+        
+      })
     }
   },
   filters: {
