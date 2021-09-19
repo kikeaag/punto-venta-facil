@@ -56,7 +56,7 @@ export default {
     mounted: function () {
         ipcRenderer.on('new-product-response', () => {
             this.resetInputs()
-            this.$refs.inputName.focus()
+            /* this.$refs.inputName.focus() */
     })
     },
     data () {

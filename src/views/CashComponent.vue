@@ -311,23 +311,23 @@ export default {
 <style>
 .index-class {
   width: 1px !important;
-  font-size: 20px;
+  font-size: 25px;
 }
 .name-class {
   width: 70%;
-  font-size: 20px;
+  font-size: 25px;
 }
 .quantity-class {
   width: 10%;
-  font-size: 20px;
+  font-size: 25px;
 }
 .list-price-class {
   width: 10%;
-  font-size: 20px;
+  font-size: 25px;
 }
 .subtotal-class {
   width: 10%;
-  font-size: 20px;
+  font-size: 25px;
 }
 
 .bandge-danger {

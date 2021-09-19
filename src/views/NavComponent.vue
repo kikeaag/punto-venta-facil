@@ -2,7 +2,7 @@
 
     <div>
       <b-navbar style="padding: 10px; background-color: #563d7c !important;" toggleable="lg" type="dark" variant="info">
-        <b-navbar-brand class="ml-3" href="#">Punto Venta Fácil</b-navbar-brand>
+        <b-navbar-brand class="ml-3" href="#">MiniSuper <label style="font-weight: bold">VAGU</label></b-navbar-brand>
 
         <!-- <b-navbar-toggle target="nav-collapse"></b-navbar-toggle> -->
 
